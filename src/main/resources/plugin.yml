@@ -1,0 +1,46 @@
+name: MCPluginPlus
+version: '${project.version}'
+main: org.xlorenzo_x.start.Main
+api-version: '1.20'
+description: Add more feature to minecraft!
+commands:
+    fly:
+        description: Command for request fly -- Permissions fly.use / fly.give
+    getallplayers:
+        description: Get all player of the server!
+    telechat:
+        description: Start a telechat!
+    sendToAll:
+        description: Manda un messaggio all'intero server nella ACTION_BAR -- Permission utility.sendall.use
+    trackP:
+        aliases:
+            - trackplayer
+        description: Guarda le statistiche di un player! -- Permission utility.trackP.use
+
+    # Sezione spawn Personal Bot
+    spawnPB:
+        aliases:
+            - spawnpersonalbot
+        description: Spawna il tuo bot Personale! -- Permission botPersonal.spawn
+    despawnPB:
+        aliases:
+            - despawnpersonalbot
+        description: Distruggi il tuo bot Personale! -- Permission botPersonal.despawn
+    pbgui:
+        description: Open the inventory's personalGui of a specific player -- Permission botPersonal.openInventoryPlayer
+    # Sezione Economia
+    balance:
+        aliases:
+            - bal
+            - money
+        description: This command allow you to see your money :)
+    takemoney:
+        description: Transform money to sunFlowerMoney-Value
+    market:
+        aliases:
+            - asta
+        description: Open the player's Market :)
+    putmarket:
+        description: Add an item (in hand) into the market <Price> :)
+    wand:
+        description: Add a magic wand to your inventory :)

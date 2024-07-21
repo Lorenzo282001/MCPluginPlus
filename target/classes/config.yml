@@ -1,0 +1,11 @@
+settings:
+  saluto: true
+  saluto-msg: 'Ciao [player], benvenuto nel server!' # Use [player] to set the name of player joining server in this message
+  telechat-command: true # Abilita o disabilita il sondaggio chat!
+  saveInventoryPersonalGui: true # Abilita a salvare l'inventario del personalBot. [RACCOMANDO LASCIA TRUE]
+
+personalBotDecorations:
+  skin:
+
+
+
