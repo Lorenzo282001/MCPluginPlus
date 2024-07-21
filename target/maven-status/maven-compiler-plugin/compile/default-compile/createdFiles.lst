@@ -1,5 +1,6 @@
 org\xlorenzo_x\BotMinecraft\PersonalBot\PersonalBot.class
 org\xlorenzo_x\BotMinecraft\PersonalBot\holderGui\HolderPersonalBotGui.class
+org\xlorenzo_x\Magic\MagicWand$1.class
 org\xlorenzo_x\general\commands\SondaggioCommand.class
 org\xlorenzo_x\start\newRecipes.class
 org\xlorenzo_x\Economics\commands\Shops\Markets\Holders\MarketHolder.class

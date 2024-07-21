@@ -2,28 +2,26 @@ package org.xlorenzo_x.Magic;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.entity.LightningStrike;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.block.BlockState;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-import org.xlorenzo_x.Magic.commands.WandCommand;
 import org.xlorenzo_x.Utility.MCPlugin_Util;
+import org.xlorenzo_x.start.Main;
 
-import java.io.Console;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class MagicWand implements Listener {
@@ -31,9 +29,11 @@ public class MagicWand implements Listener {
     private ItemStack magic_wand;
     private ItemMeta meta_magic_wand;
 
-    public static String[] modes = {"strikeLightning", "Disappear"};
+    public static String[] modes = {"strikeLightning", "Disappear", "Levitation"};
     private int currentModeIndex = 0;
     private Map<Player, Long> lastScrollTime = new HashMap<>(); // Mappa per tenere traccia del tempo dell'ultimo evento
+
+
 
     public MagicWand () {
 
@@ -137,7 +137,6 @@ public class MagicWand implements Listener {
 
                     // Modalità in indice 1
                     String selected_mode = lore.get(1).strip().toLowerCase();
-                    System.out.println(selected_mode);
 
                     if (selected_mode.contains(modes[0].toLowerCase()))
                         modeLighting(p);
@@ -171,12 +170,92 @@ public class MagicWand implements Listener {
 
         if (target != null)
         {
-            target.setHealth(0);
+            target.remove();
             target.getWorld().playSound(target.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1.0f,1.0f);
             target.getWorld().spawnParticle(Particle.SMOKE_LARGE, target.getLocation(), 20);
         }
 
     }
+
+    // Capire quale blocco sto guardando tramite evento
+    @EventHandler
+    public void seeBlockOnLevitation (@NotNull PlayerInteractEvent event) {
+
+        Player p = event.getPlayer();
+
+        if (event.getAction().toString().contains("RIGHT")) { // Se sto cliccando col destro
+            // Verificare se il player ha la wand in mano
+            ItemStack item = event.getItem();
+
+            if (isMagicWand(item))
+            {
+                // Verificare se la wand si trova in modalità Levitation
+                ItemMeta metaWand = item.getItemMeta();
+
+                List<String> lore = metaWand.getLore();
+
+                // Modalità in indice 1
+                String selected_mode = lore.get(1).strip().toLowerCase();
+
+                if (selected_mode.contains(modes[2].toLowerCase())) // Se contiene Levitation
+                {
+
+                    // Ottieni la posizione del giocatore e la direzione in cui sta guardando
+                    Vector direction = p.getLocation().getDirection();
+                    org.bukkit.Location eyeLocation = p.getEyeLocation();
+
+                    // Imposta la distanza massima per il raycasting
+                    double maxDistance = 30.0;
+                    double step = 0.1;
+
+                    // Raycasting lungo la linea di visione
+                    for (double distance = 0; distance < maxDistance; distance += step) {
+                        // Calcola la posizione attuale lungo la direzione del giocatore
+                        org.bukkit.Location location = eyeLocation.clone().add(direction.clone().multiply(distance));
+                        Block block = location.getBlock();
+
+                        // Controllo se il blocco è diverso da AIR
+                        if (block.getType() != Material.AIR) {
+                            startLevitation(p,block);
+                            break;
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    private void startLevitation (@NotNull Player player, @NotNull Block block) {
+
+        new BukkitRunnable() {
+            final FallingBlock fallingBlock = player.getWorld().spawnFallingBlock(block.getLocation(), block.getType().createBlockData());
+
+            @Override
+            public void run () {
+
+                if (fallingBlock.isValid() && player.isOnline()) {
+                    // Aumenta l'altezza dell'oggetto per simulare la levitazione
+                    fallingBlock.setVelocity(new Vector(0, 0.1, 0));
+
+                    // Se il giocatore ha smesso di premere il tasto destro, ferma il task
+                    if (player.getInventory().getItemInMainHand().getType() == Material.AIR) {
+                        fallingBlock.remove();
+                        this.cancel();
+                    }
+                } else {
+                    this.cancel();
+                }
+
+            }
+
+
+        }.runTaskTimer(Main.plugin, 0L, 1L);
+
+
+    }
+
+
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
